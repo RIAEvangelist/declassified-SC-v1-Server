@@ -1,0 +1,14 @@
+[Unit]
+Description=diginow super charger server
+
+[Service]
+WorkingDirectory=/home/root/super-charger
+ExecStart=/usr/bin/node chargerComs.js
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=node
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,18 @@
+{
+  "name": "super-charger",
+  "version": "0.0.1",
+  "description": "super charger for electric vehicle controller",
+  "main": "chargerComs.js",
+  "dependencies": {
+    "js-message": "*",
+    "node-cmd": "*",
+    "serialport": "*",
+    "bluetooth-programmer": "*"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "DigiNow"
+}

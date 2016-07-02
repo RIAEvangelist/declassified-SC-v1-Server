@@ -1,0 +1,152 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+Array	chargerComs-v2.js	/^var debug=false;$/;"	c
+Array	entities/Battery.js	/^'use strict';$/;"	c
+Array	entities/Charger.js	/^const JPlug=require('.\/JPlug.js');$/;"	c
+Array	entities/ChargerConfig.js	/^'use strict';$/;"	c
+Array	entities/ChargerMessage.js	/^const CHARGER_LIMITS='M,I:';$/;"	c
+Array.sum	chargerComs-v2.js	/^Array.prototype.sum = function() {$/;"	m
+Array.sum	entities/Battery.js	/^Array.prototype.sum = function() {$/;"	m
+Array.sum	entities/Charger.js	/^Array.prototype.sum = function() {$/;"	m
+Array.sum	entities/ChargerConfig.js	/^Array.prototype.sum = function() {$/;"	m
+Array.sum	entities/ChargerMessage.js	/^Array.prototype.sum = function() {$/;"	m
+BATT_OFFSET	chargerComs-v2.js	/^var BATT_OFFSET=0;$/;"	v
+BTP	program-bt-laptop.js	/^var BTP=require('bluetooth-programmer');$/;"	v
+BTP	program-bt.js	/^var BTP=require('bluetooth-programmer');$/;"	v
+IS_JPLUG	chargerComs-v2.js	/^var IS_JPLUG=false;$/;"	v
+MAX_WATTAGE	chargerComs-v2.js	/^var MAX_WATTAGE=12000;$/;"	v
+Message	chargerComs-old.js	/^var Message=require('js-message');$/;"	v
+Message	chargerComs-v2.js	/^var Message=require('js-message');$/;"	v
+SerialPort	chargerComs-v2.js	/^var SerialPort = require("serialport");$/;"	v
+WS	chargerComs-old.js	/^var WS=require('ws').Server;$/;"	v
+apiBT	chargerComs-v2.js	/^var apiBT=null;$/;"	v
+apiBT	chargerComs.js	/^var apiBT=null;$/;"	v
+author	package.json	/^  "author": "",$/;"	f
+autoStart	chargerComs-old.js	/^var autoStart=false;$/;"	v
+autoStart	chargerComs-v2.js	/^var autoStart=false;$/;"	v
+bluetooth-programmer	package.json	/^    "bluetooth-programmer": "*"$/;"	f
+bobOpen	test-ser.js	/^function bobOpen(){$/;"	f
+broadcast	chargerComs-old.js	/^server.broadcast = function broadcast(message) {$/;"	f
+broadcast	chargerComs-v2.js	/^function broadcast(message) {$/;"	f
+broadcast	chargerComs.js	/^function broadcast(message) {$/;"	f
+calcJPlugMax	chargerComs-v2.js	/^function calcJPlugMax(){$/;"	f
+calibrate	chargerComs-v2.js	/^function calibrate(offset){$/;"	f
+calibrate	chargerComs.js	/^function calibrate(offset){$/;"	f
+chargeComplete	chargerComs-old.js	/^function chargeComplete(){$/;"	f
+chargeComplete	chargerComs-v2.js	/^function chargeComplete(){$/;"	f
+chargeComplete	chargerComs.js	/^function chargeComplete(){$/;"	f
+chargeSettings.current	chargerComs-old.js	/^var chargeSettings={$/;"	p
+chargeSettings.voltage	chargerComs-old.js	/^    current:DEFAULT_120_CURRENT,$/;"	p
+chargeStarted	chargerComs-old.js	/^function chargeStarted(data){$/;"	f
+chargeStarted	chargerComs-v2.js	/^function chargeStarted(data){$/;"	f
+chargeStarted	chargerComs.js	/^function chargeStarted(data){$/;"	f
+charger	chargerComs-v2.js	/^var charger=null;$/;"	v
+charger	chargerComs.js	/^var charger=null;$/;"	v
+chargerOpen	test-ser.js	/^function chargerOpen(){$/;"	f
+chargerState.battV	chargerComs-v2.js	/^    estMaxWattage:1000,$/;"	p
+chargerState.batteryVoltage	chargerComs-old.js	/^    mainsMaxVoltage:0,$/;"	p
+chargerState.calibratedBattV	chargerComs-v2.js	/^    battV:0,$/;"	p
+chargerState.charging	chargerComs-old.js	/^    lastSetVoltage:0,$/;"	p
+chargerState.duration	chargerComs-v2.js	/^    means:means,$/;"	p
+chargerState.duty	chargerComs-v2.js	/^    outA:0,$/;"	p
+chargerState.estMainsV	chargerComs-v2.js	/^    mainsV:0,$/;"	p
+chargerState.estMaxWattage	chargerComs-v2.js	/^    estMainsV:120,$/;"	p
+chargerState.jplug	chargerComs-v2.js	/^    duration:0,$/;"	p
+chargerState.lastSetCurrent	chargerComs-old.js	/^    batteryVoltage:0,$/;"	p
+chargerState.lastSetVoltage	chargerComs-old.js	/^    lastSetCurrent:0,$/;"	p
+chargerState.mainsMaxVoltage	chargerComs-old.js	/^var chargerState={$/;"	p
+chargerState.mainsV	chargerComs-v2.js	/^var chargerState={$/;"	p
+chargerState.means	chargerComs-v2.js	/^    outAH:0,$/;"	p
+chargerState.outA	chargerComs-v2.js	/^    calibratedBattV:0,$/;"	p
+chargerState.outAH	chargerComs-v2.js	/^    temp:0,$/;"	p
+chargerState.settings	chargerComs-old.js	/^    charging:chargingState,$/;"	p
+chargerState.temp	chargerComs-v2.js	/^    duty:0,$/;"	p
+chargingState.chargedAmpHours	chargerComs-old.js	/^    temp:0,$/;"	p
+chargingState.chargingCurrent	chargerComs-old.js	/^    dutyCycle:0,$/;"	p
+chargingState.chargingVoltage	chargerComs-old.js	/^    chargingCurrent:0,$/;"	p
+chargingState.dutyCycle	chargerComs-old.js	/^var chargingState={$/;"	p
+chargingState.temp	chargerComs-old.js	/^    chargingVoltage:0,$/;"	p
+cmd	chargerComs-v2.js	/^var cmd=require('node-cmd');$/;"	v
+cmd	program-bt.js	/^var cmd=require('node-cmd');$/;"	v
+connectedToBT	program-bt-laptop.js	/^function connectedToBT(){$/;"	c
+connectedToBT	program-bt.js	/^function connectedToBT(){$/;"	c
+console.log	chargerComs-v2.js	/^if(!debug){$/;"	f
+console.log	chargerComs.js	/^if(!debug){$/;"	f
+dataStorageDelay	chargerComs-v2.js	/^var dataStorageDelay=60000;$/;"	v
+dataStorageDelay	chargerComs.js	/^var dataStorageDelay=15000;$/;"	v
+dataStorageInterval	chargerComs-v2.js	/^var dataStorageInterval=null;$/;"	v
+dataStorageInterval	chargerComs.js	/^var dataStorageInterval=null;$/;"	v
+debug	chargerComs-v2.js	/^var debug=false;$/;"	v
+debug	chargerComs.js	/^var debug=false;$/;"	v
+dependencies	package.json	/^  "dependencies": {$/;"	f
+description	package.json	/^  "description": "super charger for electric vehicle controller",$/;"	f
+desiredWatts	chargerComs-v2.js	/^var desiredWatts=0;$/;"	v
+devDependencies	package.json	/^  "devDependencies": {},$/;"	f
+forceSet	chargerComs-v2.js	/^var forceSet=false;$/;"	v
+formatMessage	chargerComs-old.js	/^function formatMessage(current,constantVoltage,reverseDirection){$/;"	f
+formatMessage	chargerComs-v2.js	/^function formatMessage(current){$/;"	f
+formatMessage	chargerComs.js	/^function formatMessage(current){$/;"	f
+fs	chargerComs-v2.js	/^var fs=require('fs');$/;"	v
+getCalibration	chargerComs-v2.js	/^function getCalibration(){$/;"	f
+getCalibration	chargerComs.js	/^function getCalibration(){$/;"	f
+getMainsV	chargerComs-v2.js	/^function getMainsV(){$/;"	f
+gotData	chargerComs-old.js	/^function gotData(data){$/;"	f
+gotData	chargerComs-v2.js	/^function gotData(data){$/;"	f
+gotData	chargerComs.js	/^function gotData(data){$/;"	f
+handleRemoteCommand	chargerComs-old.js	/^function handleRemoteCommand(data){$/;"	f
+handleRemoteCommand	chargerComs-v2.js	/^function handleRemoteCommand(data){$/;"	f
+handleRemoteCommand	chargerComs.js	/^function handleRemoteCommand(data){$/;"	f
+init	chargerComs-v2.js	/^function init(){$/;"	f
+init	chargerComs.js	/^function init(){$/;"	f
+js-message	package.json	/^    "js-message": "*",$/;"	f
+license	package.json	/^  "license": "DigiNow"$/;"	f
+main	package.json	/^  "main": "chargerComs.js",$/;"	f
+manuallySet	chargerComs-v2.js	/^var manuallySet=false;$/;"	v
+means.amps	chargerComs-v2.js	/^var means={$/;"	p
+name	package.json	/^  "name": "super-charger",$/;"	f
+node-cmd	package.json	/^    "node-cmd": "*",$/;"	f
+parseCharging	chargerComs-old.js	/^function parseCharging(data){$/;"	f
+parseCharging	chargerComs-v2.js	/^function parseCharging(data){$/;"	f
+parseCharging	chargerComs.js	/^function parseCharging(data){$/;"	f
+parseIdle	chargerComs-old.js	/^function parseIdle(data){$/;"	f
+parseIdle	chargerComs-v2.js	/^function parseIdle(data){$/;"	f
+parseIdle	chargerComs.js	/^function parseIdle(data){$/;"	f
+parseJPLUG	chargerComs-v2.js	/^function parseJPLUG(data){$/;"	f
+parseJPLUG	chargerComs.js	/^function parseJPLUG(data){$/;"	f
+parseTotalCharge	chargerComs-old.js	/^function parseTotalCharge(data){$/;"	f
+parseTotalCharge	chargerComs-v2.js	/^function parseTotalCharge(data){$/;"	f
+parseTotalCharge	chargerComs.js	/^function parseTotalCharge(data){$/;"	f
+rampingDown	chargerComs-v2.js	/^var rampingDown=false;$/;"	v
+scripts	package.json	/^  "scripts": {$/;"	f
+sendData	chargerComs-old.js	/^function sendData(message){$/;"	f
+sendData	chargerComs-v2.js	/^function sendData(interface,message){$/;"	f
+sendData	chargerComs.js	/^function sendData(interface,message){$/;"	f
+serialport	chargerComs-old.js	/^var serialport = require("serialport");$/;"	v
+serialport	package.json	/^    "serialport": "*",$/;"	f
+serialport	test-ser.js	/^var serialport = require("serialport");$/;"	v
+server.broadcast	chargerComs-old.js	/^var totalAHCharged=0;$/;"	f
+start	chargerComs-old.js	/^function start(){$/;"	f
+start	chargerComs-v2.js	/^function start(){$/;"	f
+start	chargerComs.js	/^function start(){$/;"	f
+start	program-bt-laptop.js	/^function start(){$/;"	f
+start	program-bt.js	/^function start(){$/;"	f
+startAPIBT	chargerComs-v2.js	/^function startAPIBT() {$/;"	f
+startAPIBT	chargerComs.js	/^function startAPIBT() {$/;"	f
+stopped	chargerComs-v2.js	/^var stopped=false;$/;"	v
+storageDir	chargerComs-v2.js	/^var storageDir = __dirname + '\/uploads\/';$/;"	v
+storageDir	chargerComs.js	/^var storageDir = __dirname + '\/uploads';$/;"	v
+storeData	chargerComs-v2.js	/^function storeData(){$/;"	f
+storeData	chargerComs.js	/^function storeData(){$/;"	f
+test	package.json	/^    "test": "echo \\"Error: no test specified\\" && exit 1"$/;"	f
+totalAHCharged	chargerComs-old.js	/^var totalAHCharged=0;$/;"	v
+totalAHCharged	chargerComs-v2.js	/^var totalAHCharged=0;$/;"	v
+turnOff	chargerComs-old.js	/^function turnOff(){$/;"	f
+turnOff	chargerComs-v2.js	/^function turnOff(){$/;"	f
+turnOff	chargerComs.js	/^function turnOff(){$/;"	f
+untilBroadcast	chargerComs-v2.js	/^var untilBroadcast=8;$/;"	v
+untilBroadcast	chargerComs.js	/^var untilBroadcast=8;$/;"	v
+version	package.json	/^  "version": "0.0.1",$/;"	f
