@@ -396,6 +396,11 @@ function formatMessage(current){
     console.log('-',current);
     var min='000';
     current=Number(current)||10;
+
+    if(isNaN(current) || current==Infinity){
+        current=10;
+    }
+
     if(current>means.blindMean && !forceSet){
         current=means.blindMean;
     }
@@ -413,7 +418,7 @@ function formatMessage(current){
         || signature===Infinity
         || isNaN(signature)
     ){
-        console.log(voltage,current,signature);
+        console.log('invalid request', voltage,current,signature);
         return;
     }
 
@@ -689,8 +694,10 @@ function handleRemoteCommand(data){
             }
 
             amps=Math.round(
-                desiredWatts
+                desiredWatts/means.voltMean
             );
+
+            console.log('requested ',desiredWatts,' watts as ',amps,' amps');
 
             var message=formatMessage(amps);
 
