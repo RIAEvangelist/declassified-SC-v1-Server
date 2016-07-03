@@ -175,8 +175,8 @@ function getMainsV(){
     means.blind.shift();
     means.mains.push(mainsV);
     means.mains.shift();
-    means.blindMean=means.blind.mean();
-    means.mainsMean=means.mains.mean();
+    means.blindMean=Math.floor(means.blind.mean());
+    means.mainsMean=means.mains.mean().toFixed(2);
 
     chargerState.estMainsV=means.mainsMean;
 
