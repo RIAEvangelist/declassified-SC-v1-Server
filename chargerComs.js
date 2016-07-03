@@ -37,11 +37,6 @@ const MAX_CURRENT=95;
 const BATTERY_VOLTAGE=116;
 const BATTERY_VOLTAGE_MIN=70;
 
-const DEFAULT_BLIND_LV_AMPS=13;
-const DEFAULT_120_WATTS=DEFAULT_BLIND_LV_AMPS*120;
-//const DEFAULT_240_WATTS=6240;
-const DEFAULT_BLIND_HV_AMPS=39;
-const DEFAULT_240_WATTS=DEFAULT_BLIND_HV_AMPS*240; //9360 amps
 //const MAX_WATTAGE=12000;
 var MAX_WATTAGE=12000;
 
@@ -70,9 +65,13 @@ var autoStart=false;
 var means={
     amps:[0,0,0,0,0,0,0,0,0,0,0,0],
     volts:[0,0,0,0,0,0,0,0,0,0,0,0],
+    mains:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    blind:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
     ampMean:0,
     voltMean:0,
-}
+    mainsMean:0,
+    blindMean:0
+};
 
 var chargerState={
     mainsV:0,
@@ -123,63 +122,68 @@ function getCalibration(){
 }
 
 function getMainsV(){
-    var mainsV=95;
-    MAX_WATTAGE=Math.floor(DEFAULT_BLIND_LV_AMPS*mainsV);
+    var mainsV=110;
+
     switch(true){
-        case (chargerState.mainsV>420):
-            mainsV=280;
-            MAX_WATTAGE=Math.floor(DEFAULT_BLIND_HV_AMPS*mainsV);
+        case (chargerState.mainsV>405):
+            means.blind.push(10);
             break;
-        case (chargerState.mainsV>390):
+        case (chargerState.mainsV>380):
             mainsV=240;
-            MAX_WATTAGE=Math.floor(DEFAULT_BLIND_HV_AMPS*mainsV);
+            means.blind.push(39);
             break;
-        case (chargerState.mainsV>370):
-            mainsV=220;
-            MAX_WATTAGE=Math.floor(DEFAULT_BLIND_HV_AMPS*mainsV);
+        case (chargerState.mainsV>350):
+            mainsV=214;
+            means.blind.push(35);
             break;
-        case (chargerState.mainsV>360):
-            mainsV=215;
-            MAX_WATTAGE=Math.floor(DEFAULT_BLIND_HV_AMPS*mainsV);
+        case (chargerState.mainsV>340):
+            mainsV=210;
+            means.blind.push(32);
             break;
         case (chargerState.mainsV>290):
             mainsV=208;
-            MAX_WATTAGE=Math.floor(DEFAULT_BLIND_HV_AMPS*mainsV);
+            means.blind.push(30);
             break;
         case (chargerState.mainsV>270):
             mainsV=190;
-            MAX_WATTAGE=Math.floor(DEFAULT_BLIND_HV_AMPS*mainsV);
+            means.blind.push(28);
             break;
         case (chargerState.mainsV>250):
             mainsV=170;
-            MAX_WATTAGE=Math.floor(DEFAULT_BLIND_HV_AMPS*mainsV);
+            means.blind.push(25);
             break;
         case (chargerState.mainsV>230):
             mainsV=160;
-            MAX_WATTAGE=Math.floor(DEFAULT_BLIND_HV_AMPS*mainsV);
+            means.blind.push(22);
             break;
         case (chargerState.mainsV>220):
             mainsV=140;
-            MAX_WATTAGE=Math.floor(DEFAULT_BLIND_HV_AMPS*mainsV);
+            means.blind.push(20);
             break;
         case (chargerState.mainsV>200):
-            mainsV=120;
-            MAX_WATTAGE=Math.floor(DEFAULT_BLIND_LV_AMPS*mainsV);
+            mainsV=130;
+            means.blind.push(18);
             break;
-        case (chargerState.mainsV>170):
-            mainsV=110;
-            MAX_WATTAGE=Math.floor(DEFAULT_BLIND_LV_AMPS*mainsV);
-            break;
+        default :
+            means.blind.push(8);
     }
 
-    chargerState.estMainsV=mainsV;
+    means.blind.shift();
+    means.mains.push(mainsV);
+    means.mains.shift();
+    means.blindMean=means.blind.sum();
+    means.mainsMean=means.mains.sum();
 
-    if(forceSet){
-        mainsV=240;
-    }
+    chargerState.estMainsV=means.mainsMean;
+
+    MAX_WATTAGE=Math.floor(means.blindMean*means.mainsMean);
 
     if(IS_JPLUG){
-        MAX_WATTAGE=Math.floor(chargerState.jplug.maxAmps*mainsV);
+        MAX_WATTAGE=Math.floor(chargerState.jplug.maxAmps*means.mainsMean);
+    }
+
+    if(forceSet){
+        MAX_WATTAGE=12000;
     }
 
     chargerState.estMaxWattage=MAX_WATTAGE;
@@ -277,6 +281,11 @@ function start(){
 
     storeData();
 }
+
+setInterval(
+    storeData,
+    dataStorageDelay
+);
 
 function storeData(){
     fs.appendFile(
@@ -387,6 +396,9 @@ function formatMessage(current){
     console.log('-',current);
     var min='000';
     current=Number(current)||10;
+    if(current>means.blindMean && !forceSet){
+        current=means.blindMean;
+    }
     current=Math.round(current);
 
     var voltage=BATTERY_VOLTAGE-BATT_OFFSET;
@@ -430,18 +442,23 @@ function formatMessage(current){
 
 function parseJPLUG(data){
     console.log('JPLUG DATA : ',data);
+    chargerState.jplug.raw=data;
     data=data.slice(
         data.indexOf(JPLUG)+JPLUG.length,
         data.indexOf('A')
     ).replace(/[^0-9,]/ig,'').split(',');
+    chargerState.jplug.raw+='|'+data;
 
     chargerState.jplug.maxAmps=Number(data[1]);
     chargerState.jplug.width=Number(data[0]);
-    chargerState.jplug.raw=data;
 
     if(isNaN(chargerState.jplug.maxAmps)||isNaN(chargerState.jplug.width)){
         chargerState.jplug.maxAmps=10;
         chargerState.jplug.width=0;
+    }
+
+    if(chargerState.jplug.maxAmps<10){
+        chargerState.jplug.maxAmps=10;
     }
 
     calcJPlugMax();
@@ -547,8 +564,7 @@ function parseCharging(data){
             return;
         }
 
-        sendData
-        (
+        sendData(
             charger,
             message
         );
@@ -650,12 +666,21 @@ function handleRemoteCommand(data){
     console.log('\n\n\n---\n\n\ncommand data',message.JSON);
 
     switch(message.type){
-        case 'forOut' :
+        case 'forceOut' :
             forceSet=true;
         case 'setOut' :
             //console.log(message.type,message.data);
             stopped=false;
-            desiredWatts=Number(message.data.W);
+            desiredWatts=Math.abs(
+                Number(message.data.W)
+            );
+
+            if(isNaN(desiredWatts)){
+                //@TODO throw to client
+                desiredWatts=500;
+            }
+
+            getMainsV();
 
             manuallySet=true;
 
@@ -664,7 +689,7 @@ function handleRemoteCommand(data){
             }
 
             amps=Math.round(
-                (desiredWatts||DEFAULT_120_WATTS)/means.voltMean
+                desiredWatts
             );
 
             var message=formatMessage(amps);
@@ -687,6 +712,10 @@ function handleRemoteCommand(data){
         case 'stopCharging' :
             stopped=true;
             turnOff();
+            //allow fall through
+        case 'autoAdjust' :
+            forceSet=false;
+            manuallySet=false;
             break;
         case 'connect' :
             broadcast();
