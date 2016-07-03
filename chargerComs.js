@@ -134,7 +134,7 @@ function getMainsV(){
             break;
         case (chargerState.mainsV>380):
             mainsV=240;
-            means.blind.push(39);
+            means.blind.push(40);
             break;
         case (chargerState.mainsV>350):
             mainsV=214;
@@ -149,24 +149,24 @@ function getMainsV(){
             means.blind.push(30);
             break;
         case (chargerState.mainsV>270):
+            mainsV=200;
+            means.blind.push(29);
+            break;
+        case (chargerState.mainsV>250):
             mainsV=190;
             means.blind.push(28);
             break;
-        case (chargerState.mainsV>250):
+        case (chargerState.mainsV>230):
             mainsV=170;
             means.blind.push(25);
             break;
-        case (chargerState.mainsV>230):
-            mainsV=160;
+        case (chargerState.mainsV>220):
+            mainsV=150;
             means.blind.push(22);
             break;
-        case (chargerState.mainsV>220):
+        case (chargerState.mainsV>200):
             mainsV=140;
             means.blind.push(20);
-            break;
-        case (chargerState.mainsV>200):
-            mainsV=130;
-            means.blind.push(18);
             break;
         default :
             means.blind.push(8);
@@ -176,7 +176,7 @@ function getMainsV(){
     means.mains.push(mainsV);
     means.mains.shift();
     means.blindMean=Math.floor(means.blind.mean());
-    means.mainsMean=means.mains.mean().toFixed(2);
+    means.mainsMean=Math.round(means.mains.mean());
 
     chargerState.estMainsV=means.mainsMean;
 
