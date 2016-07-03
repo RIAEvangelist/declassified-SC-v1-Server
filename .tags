@@ -9,6 +9,7 @@ Array	entities/Battery.js	/^'use strict';$/;"	c
 Array	entities/Charger.js	/^const JPlug=require('.\/JPlug.js');$/;"	c
 Array	entities/ChargerConfig.js	/^'use strict';$/;"	c
 Array	entities/ChargerMessage.js	/^const CHARGER_LIMITS='M,I:';$/;"	c
+Array.mean	chargerComs.js	/^Array.prototype.mean = function() {$/;"	m
 Array.sum	chargerComs.js	/^Array.prototype.sum = function() {$/;"	m
 Array.sum	entities/Battery.js	/^Array.prototype.sum = function() {$/;"	m
 Array.sum	entities/Charger.js	/^Array.prototype.sum = function() {$/;"	m

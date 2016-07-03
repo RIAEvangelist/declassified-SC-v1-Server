@@ -16,6 +16,10 @@ Array.prototype.sum = function() {
     return this.reduce(function(a,b){return a+b;});
 };
 
+Array.prototype.mean = function() {
+    return this.sum()/this.length;
+};
+
 if(!debug){
     console.log=function(){}
 }
@@ -171,8 +175,8 @@ function getMainsV(){
     means.blind.shift();
     means.mains.push(mainsV);
     means.mains.shift();
-    means.blindMean=means.blind.sum();
-    means.mainsMean=means.mains.sum();
+    means.blindMean=means.blind.mean();
+    means.mainsMean=means.mains.mean();
 
     chargerState.estMainsV=means.mainsMean;
 
@@ -515,8 +519,8 @@ function parseCharging(data){
     means.volts.push(chargerState.calibratedBattV);
     means.volts.shift();
 
-    means.ampMean=(means.amps.sum() / means.amps.length).toFixed(1);
-    means.voltMean=(means.volts.sum() / means.volts.length).toFixed(1);
+    means.ampMean=(means.amps.mean()).toFixed(1);
+    means.voltMean=(means.volts.mean()).toFixed(1);
 
     getMainsV();
 
@@ -593,8 +597,8 @@ function parseIdle(data){
     means.volts.push(chargerState.calibratedBattV);
     means.volts.shift();
 
-    means.ampMean=(means.amps.sum() / means.amps.length).toFixed(1);
-    means.voltMean=(means.volts.sum() / means.volts.length).toFixed(1);
+    means.ampMean=(means.amps.mean()).toFixed(1);
+    means.voltMean=(means.volts.mean()).toFixed(1);
 
     if(means.voltMean<BATTERY_VOLTAGE_MIN){
         means.voltMean=BATTERY_VOLTAGE-2;
