@@ -208,6 +208,10 @@ function calibrateDefaultPower(power){
         return;
     }
 
+    if(power < 500){
+        power=500;
+    }
+
     desiredWatts=power;
 
     fs.writeFile(
@@ -309,13 +313,18 @@ function init(){
                 return;
             }
 
+            if(data < 500){
+                console.log('ignoring bad power default');
+                return;
+            }
+
             var message=new Message;
             message.type='setOut';
             message.data={
                 W:data
             };
 
-            handleRemoteCommand(message);
+            handleRemoteCommand(message.JSON);
         }
     );
 }
