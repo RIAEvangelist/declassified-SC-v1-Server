@@ -18,6 +18,7 @@ Array.sum	entities/ChargerMessage.js	/^Array.prototype.sum = function() {$/;"	m
 BATT_OFFSET	chargerComs.js	/^var BATT_OFFSET=0;$/;"	v
 BTP	program-bt-laptop.js	/^var BTP=require('bluetooth-programmer');$/;"	v
 BTP	program-bt.js	/^var BTP=require('bluetooth-programmer');$/;"	v
+BUFFER	chargerComs.js	/^var BUFFER=[0,0,0,0,0,0,0,0,0,0,0,0];$/;"	v
 IS_JPLUG	chargerComs.js	/^var IS_JPLUG=false;$/;"	v
 MAX_WATTAGE	chargerComs.js	/^var MAX_WATTAGE=12000;$/;"	v
 Message	chargerComs-old.js	/^var Message=require('js-message');$/;"	v

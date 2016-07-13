@@ -43,6 +43,8 @@ const BATTERY_VOLTAGE_MIN=3;
 
 //const MAX_WATTAGE=12000;
 var MAX_WATTAGE=12000;
+const GOOD_CHARGER=7000;
+const BAD_CHARGER=5100;
 
 const RAMPDOWN_WATTAGE=100;
 
@@ -65,6 +67,8 @@ var forceSet=false;
 var stopped=false;
 
 var autoStart=false;
+
+var BUFFER=[0,0,0,0,0,0,0,0,0,0,0,0];
 
 var means={
     amps:[0,0,0,0,0,0,0,0,0,0,0,0],
@@ -309,38 +313,37 @@ function start(){
 
     storeData();
 
-    // fs.readFile(
-    //     '/root/calibration/power',
-    //     function(err, data){
-    //         if (err){
-    //             //fine
-    //             return;
-    //         }
-    //
-    //         data=Number(data);
-    //
-    //         if(isNaN(data)){
-    //             //bad value
-    //             return;
-    //         }
-    //
-    //         if(data < 500){
-    //             console.log('ignoring bad power default');
-    //             return;
-    //         }
-    //
-    //         var message=new Message;
-    //         message.type='setOut';
-    //         message.data={
-    //             W:data
-    //         };
-    //
-    //         setTimeout(
-    //             handleRemoteCommand.bind(null,message.JSON),
-    //             200
-    //         );
-    //     }
-    // );
+    fs.readFile(
+        '/root/calibration/power',
+        function(err, data){
+            if (err){
+                //fine
+                return;
+            }
+
+            data=Number(data);
+
+            if(isNaN(data)){
+                //bad value
+                return;
+            }
+
+            if(data < 500){
+                data=GOOD_CHARGER;
+            }
+
+            var message=new Message;
+            message.type='setOut';
+            message.data={
+                W:data
+            };
+
+            setTimeout(
+                handleRemoteCommand.bind(null,message.JSON),
+                200
+            );
+        }
+    );
 }
 
 setInterval(
@@ -574,6 +577,12 @@ function parseCharging(data){
     means.amps.push(chargerState.outA);
     means.amps.shift();
 
+    if(chargerState.outA<10){
+        for(var i=0; i<means.amps.length; i++){
+            means.amps[i]=chargerState.outA;
+        }
+    }
+
     means.volts.push(chargerState.calibratedBattV);
     means.volts.shift();
 
@@ -649,8 +658,9 @@ function parseIdle(data){
     chargerState.outA = Number(data[2]);
     chargerState.temp = Number(data[4]);
 
-    means.amps.push(0);
-    means.amps.shift();
+    for(var i=0; i<means.amps.length; i++){
+        means.amps[i]=0;
+    }
 
     means.volts.push(chargerState.calibratedBattV);
     means.volts.shift();
