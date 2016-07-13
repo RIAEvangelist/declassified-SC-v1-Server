@@ -4,7 +4,7 @@
 !_TAG_PROGRAM_NAME	Exuberant Ctags	//
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.9~svn20110310	//
-Array	chargerComs.js	/^var debug=false;$/;"	c
+Array	chargerComs.js	/^var debug=true;$/;"	c
 Array	entities/Battery.js	/^'use strict';$/;"	c
 Array	entities/Charger.js	/^const JPlug=require('.\/JPlug.js');$/;"	c
 Array	entities/ChargerConfig.js	/^'use strict';$/;"	c
@@ -37,6 +37,7 @@ broadcast	chargerComs.js	/^function broadcast(message) {$/;"	f
 calcJPlugMax	chargerComs.js	/^function calcJPlugMax(){$/;"	f
 calibrate	chargerComs-next.js	/^function calibrate(offset){$/;"	f
 calibrate	chargerComs.js	/^function calibrate(offset){$/;"	f
+calibrateDefaultPower	chargerComs.js	/^function calibrateDefaultPower(power){$/;"	f
 chargeComplete	chargerComs-next.js	/^function chargeComplete(){$/;"	f
 chargeComplete	chargerComs-old.js	/^function chargeComplete(){$/;"	f
 chargeComplete	chargerComs.js	/^function chargeComplete(){$/;"	f
@@ -82,7 +83,7 @@ dataStorageDelay	chargerComs.js	/^var dataStorageDelay=60000;$/;"	v
 dataStorageInterval	chargerComs-next.js	/^var dataStorageInterval=null;$/;"	v
 dataStorageInterval	chargerComs.js	/^var dataStorageInterval=null;$/;"	v
 debug	chargerComs-next.js	/^var debug=false;$/;"	v
-debug	chargerComs.js	/^var debug=false;$/;"	v
+debug	chargerComs.js	/^var debug=true;$/;"	v
 dependencies	package.json	/^  "dependencies": {$/;"	f
 description	package.json	/^  "description": "super charger for electric vehicle controller",$/;"	f
 desiredWatts	chargerComs.js	/^var desiredWatts=0;$/;"	v

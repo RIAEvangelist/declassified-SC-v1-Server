@@ -10,7 +10,7 @@ cmd.get(
 
 var desiredWatts=0;
 
-var debug=false;
+var debug=true;
 
 Array.prototype.sum = function() {
     return this.reduce(function(a,b){return a+b;});
@@ -39,7 +39,7 @@ const UNKNOWN_MESSAGE='M,I:';
 
 const MAX_CURRENT=95;
 const BATTERY_VOLTAGE=116;
-const BATTERY_VOLTAGE_MIN=70;
+const BATTERY_VOLTAGE_MIN=3;
 
 //const MAX_WATTAGE=12000;
 var MAX_WATTAGE=12000;
@@ -69,8 +69,8 @@ var autoStart=false;
 var means={
     amps:[0,0,0,0,0,0,0,0,0,0,0,0],
     volts:[0,0,0,0,0,0,0,0,0,0,0,0],
-    mains:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    blind:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    mains:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    blind:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
     ampMean:0,
     voltMean:0,
     mainsMean:0,
@@ -129,6 +129,9 @@ function getMainsV(){
     var mainsV=110;
 
     switch(true){
+        case (chargerState.mainsV>420):
+            means.blind.push(8);
+            break;
         case (chargerState.mainsV>405):
             means.blind.push(10);
             break;
@@ -148,24 +151,24 @@ function getMainsV(){
             mainsV=208;
             means.blind.push(30);
             break;
-        case (chargerState.mainsV>270):
+        case (chargerState.mainsV>240):
             mainsV=200;
             means.blind.push(29);
             break;
-        case (chargerState.mainsV>250):
+        case (chargerState.mainsV>220):
             mainsV=190;
             means.blind.push(28);
             break;
-        case (chargerState.mainsV>230):
+        case (chargerState.mainsV>200):
             mainsV=170;
             means.blind.push(25);
             break;
-        case (chargerState.mainsV>220):
-            mainsV=150;
+        case (chargerState.mainsV>180):
+            mainsV=160;
             means.blind.push(22);
             break;
-        case (chargerState.mainsV>200):
-            mainsV=140;
+        case (chargerState.mainsV>160):
+            mainsV=150;
             means.blind.push(20);
             break;
         default :
@@ -193,6 +196,39 @@ function getMainsV(){
     chargerState.estMaxWattage=MAX_WATTAGE;
 
     return mainsV;
+}
+
+function calibrateDefaultPower(power){
+    console.log('-------------------');
+    console.log(power);
+    console.log('-------------------');
+
+    if(isNaN(power)){
+        console.log('rejected')
+        return;
+    }
+
+    desiredWatts=power;
+
+    fs.writeFile(
+        '/root/calibration/power',
+        power
+    );
+
+    var message=formatMessage(
+        desiredWatts/means.voltMean
+    );
+
+    manuallySet=true;
+
+    if(!message){
+        return;
+    }
+
+    sendData(
+        charger,
+        message
+    );
 }
 
 function calibrate(offset){
@@ -255,6 +291,32 @@ function init(){
     charger.on(
         'open',
         start
+    );
+
+
+    fs.readFile(
+        '/root/calibration/power',
+        function(err, data){
+            if (err){
+                //fine
+                return;
+            }
+
+            data=Number(data);
+
+            if(isNaN(data)){
+                //bad value
+                return;
+            }
+
+            var message=new Message;
+            message.type='setOut';
+            message.data={
+                W:data
+            };
+
+            handleRemoteCommand(message);
+        }
     );
 }
 
@@ -361,6 +423,7 @@ function gotData(data){
  * @return {void}
  */
 function sendData(interface,message){
+    console.log('sending',message)
     interface.write(message+'\n');
 }
 
@@ -717,6 +780,11 @@ function handleRemoteCommand(data){
             break;
         case 'calibrate' :
             calibrate(
+                (Number(message.data.offset)||0)
+            );
+            break;
+        case 'defaultPower' :
+            calibrateDefaultPower(
                 (Number(message.data.offset)||0)
             );
             break;
