@@ -69,7 +69,7 @@ var autoStart=false;
 var means={
     amps:[0,0,0,0,0,0,0,0,0,0,0,0],
     volts:[0,0,0,0,0,0,0,0,0,0,0,0],
-    mains:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    mains:[100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100],
     blind:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
     ampMean:0,
     voltMean:0,
@@ -129,13 +129,13 @@ function getMainsV(){
     var mainsV=110;
 
     switch(true){
-        case (chargerState.mainsV>420):
-            means.blind.push(8);
-            break;
-        case (chargerState.mainsV>405):
+        case (chargerState.mainsV>430):
             means.blind.push(10);
             break;
-        case (chargerState.mainsV>380):
+        case (chargerState.mainsV>408):
+            means.blind.push(15);
+            break;
+        case (chargerState.mainsV>385):
             mainsV=240;
             means.blind.push(40);
             break;
@@ -143,33 +143,17 @@ function getMainsV(){
             mainsV=214;
             means.blind.push(35);
             break;
-        case (chargerState.mainsV>340):
-            mainsV=210;
-            means.blind.push(32);
-            break;
         case (chargerState.mainsV>290):
             mainsV=208;
             means.blind.push(30);
             break;
-        case (chargerState.mainsV>240):
-            mainsV=200;
-            means.blind.push(29);
-            break;
-        case (chargerState.mainsV>220):
-            mainsV=190;
-            means.blind.push(28);
-            break;
         case (chargerState.mainsV>200):
-            mainsV=170;
+            mainsV=190;
             means.blind.push(25);
             break;
-        case (chargerState.mainsV>180):
+        case (chargerState.mainsV>160):
             mainsV=160;
             means.blind.push(22);
-            break;
-        case (chargerState.mainsV>160):
-            mainsV=150;
-            means.blind.push(20);
             break;
         default :
             means.blind.push(8);
@@ -296,37 +280,6 @@ function init(){
         'open',
         start
     );
-
-
-    fs.readFile(
-        '/root/calibration/power',
-        function(err, data){
-            if (err){
-                //fine
-                return;
-            }
-
-            data=Number(data);
-
-            if(isNaN(data)){
-                //bad value
-                return;
-            }
-
-            if(data < 500){
-                console.log('ignoring bad power default');
-                return;
-            }
-
-            var message=new Message;
-            message.type='setOut';
-            message.data={
-                W:data
-            };
-
-            handleRemoteCommand(message.JSON);
-        }
-    );
 }
 
 function startAPIBT() {
@@ -355,6 +308,39 @@ function start(){
     );
 
     storeData();
+
+    // fs.readFile(
+    //     '/root/calibration/power',
+    //     function(err, data){
+    //         if (err){
+    //             //fine
+    //             return;
+    //         }
+    //
+    //         data=Number(data);
+    //
+    //         if(isNaN(data)){
+    //             //bad value
+    //             return;
+    //         }
+    //
+    //         if(data < 500){
+    //             console.log('ignoring bad power default');
+    //             return;
+    //         }
+    //
+    //         var message=new Message;
+    //         message.type='setOut';
+    //         message.data={
+    //             W:data
+    //         };
+    //
+    //         setTimeout(
+    //             handleRemoteCommand.bind(null,message.JSON),
+    //             200
+    //         );
+    //     }
+    // );
 }
 
 setInterval(
