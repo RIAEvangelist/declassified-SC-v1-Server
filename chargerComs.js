@@ -333,7 +333,7 @@ function start(){
             }
 
             var message=new Message;
-            message.type='setOut';
+            message.type='forceOut';
             message.data={
                 W:data
             };
