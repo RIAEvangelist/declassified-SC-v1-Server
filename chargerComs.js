@@ -574,13 +574,17 @@ function parseCharging(data){
         /1000/60/60
     ).toFixed(2);
 
+    if(means.amps.sum()<200){
+        for(var i=0; i<means.amps.length; i++){
+            means.amps[i]=chargerState.outA;
+        }
+    }
+
     means.amps.push(chargerState.outA);
     means.amps.shift();
 
     if(chargerState.outA<10){
-        for(var i=0; i<means.amps.length; i++){
-            means.amps[i]=chargerState.outA;
-        }
+        means.amps=BUFFER;
     }
 
     means.volts.push(chargerState.calibratedBattV);
@@ -658,8 +662,8 @@ function parseIdle(data){
     chargerState.outA = Number(data[2]);
     chargerState.temp = Number(data[4]);
 
-    for(var i=0; i<means.amps.length; i++){
-        means.amps[i]=0;
+    if(chargerState.outA<10){
+        means.amps=BUFFER;
     }
 
     means.volts.push(chargerState.calibratedBattV);
@@ -780,6 +784,14 @@ function handleRemoteCommand(data){
             sendData(
                 charger,
                 message
+            );
+
+            //ensure listened to if fresh start
+            setTimeout(
+                function(watts){
+                    desiredWatts=watts;
+                }.bind(null,desiredWatts),
+                90
             );
 
             break;
