@@ -131,37 +131,40 @@ function getCalibration(){
 
 function getMainsV(){
     var mainsV=110;
+    //
+    // switch(true){
+    //     case (chargerState.mainsV>430):
+    //         means.blind.push(10);
+    //         break;
+    //     case (chargerState.mainsV>408):
+    //         means.blind.push(15);
+    //         break;
+    //     case (chargerState.mainsV>385):
+    //         mainsV=240;
+    //         means.blind.push(40);
+    //         break;
+    //     case (chargerState.mainsV>350):
+    //         mainsV=214;
+    //         means.blind.push(35);
+    //         break;
+    //     case (chargerState.mainsV>290):
+    //         mainsV=208;
+    //         means.blind.push(30);
+    //         break;
+    //     case (chargerState.mainsV>200):
+    //         mainsV=190;
+    //         means.blind.push(25);
+    //         break;
+    //     case (chargerState.mainsV>160):
+    //         mainsV=160;
+    //         means.blind.push(22);
+    //         break;
+    //     default :
+    //         means.blind.push(8);
+    // }
 
-    switch(true){
-        case (chargerState.mainsV>430):
-            means.blind.push(10);
-            break;
-        case (chargerState.mainsV>408):
-            means.blind.push(15);
-            break;
-        case (chargerState.mainsV>385):
-            mainsV=240;
-            means.blind.push(40);
-            break;
-        case (chargerState.mainsV>350):
-            mainsV=214;
-            means.blind.push(35);
-            break;
-        case (chargerState.mainsV>290):
-            mainsV=208;
-            means.blind.push(30);
-            break;
-        case (chargerState.mainsV>200):
-            mainsV=190;
-            means.blind.push(25);
-            break;
-        case (chargerState.mainsV>160):
-            mainsV=160;
-            means.blind.push(22);
-            break;
-        default :
-            means.blind.push(8);
-    }
+    mainsV=208;
+    means.blind.push(32);
 
     means.blind.shift();
     means.mains.push(mainsV);
@@ -574,18 +577,14 @@ function parseCharging(data){
         /1000/60/60
     ).toFixed(2);
 
-    if(means.amps.sum()<200){
-        for(var i=0; i<means.amps.length; i++){
-            means.amps[i]=chargerState.outA;
-        }
-    }
+    // if(means.amps.sum()<200){
+    //     for(var i=0; i<means.amps.length; i++){
+    //         means.amps[i]=chargerState.outA;
+    //     }
+    // }
 
     means.amps.push(chargerState.outA);
     means.amps.shift();
-
-    if(chargerState.outA<10){
-        means.amps=BUFFER;
-    }
 
     means.volts.push(chargerState.calibratedBattV);
     means.volts.shift();
@@ -662,9 +661,9 @@ function parseIdle(data){
     chargerState.outA = Number(data[2]);
     chargerState.temp = Number(data[4]);
 
-    if(chargerState.outA<10){
-        means.amps=BUFFER;
-    }
+    // if(chargerState.outA<10){
+    //     means.amps=BUFFER;
+    // }
 
     means.volts.push(chargerState.calibratedBattV);
     means.volts.shift();
@@ -791,7 +790,7 @@ function handleRemoteCommand(data){
                 function(watts){
                     desiredWatts=watts;
                 }.bind(null,desiredWatts),
-                90
+                300
             );
 
             break;
