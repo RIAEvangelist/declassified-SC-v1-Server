@@ -686,7 +686,9 @@ function parseIdle(data){
         && chargerState.calibratedBattV>BATTERY_VOLTAGE_MIN
     ){
         var amps=0;
-        desiredWatts=MAX_WATTAGE;
+        if(!desiredWatts){
+            desiredWatts=MAX_WATTAGE;
+        }
 
         if(IS_JPLUG){
             calcJPlugMax();
