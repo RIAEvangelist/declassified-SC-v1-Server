@@ -10,7 +10,7 @@ cmd.get(
 
 var desiredWatts=0;
 
-var debug=true;
+var debug=false;
 
 Array.prototype.sum = function() {
     return this.reduce(function(a,b){return a+b;});
@@ -456,6 +456,9 @@ function turnOff(){
     chargerState.duty   = 0;
     chargerState.outA   = 0;
     desiredWatts=0;
+    for(var i=0; i<means.amps.length; i++){
+        means.amps[i]=chargerState.outA;
+    }
     sendData(charger,STANDBY);
 }
 
@@ -676,7 +679,7 @@ function parseIdle(data){
     }
 
     console.log(
-        chargerState.calibratedBattV
+        chargerState
     );
 
     getMainsV();
