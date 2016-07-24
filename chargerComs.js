@@ -5,16 +5,19 @@ const Message=require('js-message');
 const WebSocketServer = require('ws').Server;
 const server = new WebSocketServer({ port: 81 });
 
-cmd.get(
-    'echo BB-UART1 > /sys/devices/bone_capemgr.*/slots && echo BB-UART2 > /sys/devices/bone_capemgr.*/slots',
-    getCalibration
-);
+// cmd.get(
+//     'echo BB-UART1 > /sys/devices/bone_capemgr.*/slots && echo BB-UART2 > /sys/devices/bone_capemgr.*/slots',
+//     getCalibration
+// );
 
-cmd.run('/etc/init.d/hostapd restart&&/etc/init.d/isc-dhcp-server restart')
+getCalibration()
+
+//cmd.run('/etc/init.d/hostapd restart&&/etc/init.d/isc-dhcp-server restart')log;
+//cmd.run('/sbin/ifdown eth0');
 
 let desiredWatts=0;
 
-const debug=false;
+const debug=true;
 
 Array.prototype.sum = function() {
     return this.reduce(function(a,b){return a+b;});
@@ -55,12 +58,12 @@ const RAMPDOWN_WATTAGE=100;
 const AUTO_START_TIMEOUT=500; //start after 0.5sec
 
 const CHARGER_BAUD=19200;
-const CHARGER_PORT='/dev/ttyO2';//'/dev/ttyUSB0';
+const CHARGER_PORT='/dev/ttyS2';//'/dev/ttyUSB0';
 
 const BT_BAUD=19200;
 // LUKE or BTLE & BT combo
 //const BT_PORT='/dev/ttyO4';
-const BT_PORT='/dev/ttyO1';
+const BT_PORT='/dev/ttyS1';
 
 let BATT_OFFSET=0;
 let IS_JPLUG=false;
@@ -286,15 +289,16 @@ function calibrate(offset){
 }
 
 function init(){
-    apiBT = new SerialPort.SerialPort(
+    console.log('connecting to BT',BT_PORT,BT_BAUD);
+    apiBT = new SerialPort(
         BT_PORT,
         {
             baudrate: BT_BAUD,
             parser: SerialPort.parsers.readline('\n')
         }
     );
-
-    charger = new SerialPort.SerialPort(
+    console.log('connecting to charger',CHARGER_PORT,CHARGER_BAUD);
+    charger = new SerialPort(
         CHARGER_PORT,
         {
             baudrate: CHARGER_BAUD,
