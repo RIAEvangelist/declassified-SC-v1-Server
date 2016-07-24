@@ -494,6 +494,11 @@ function turnOff(){
         means.amps[i]=chargerState.outA;
     }
     sendData(charger,STANDBY);
+
+    setTimeout(
+        broadcast,
+        1000
+    );
 }
 
 function formatMessage(current){
