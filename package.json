@@ -7,7 +7,9 @@
     "js-message": "*",
     "node-cmd": "*",
     "serialport": "*",
-    "bluetooth-programmer": "*"
+    "bluetooth-programmer": "*",
+    "node-http-server":"*",
+    "ws":"*"
   },
   "devDependencies": {},
   "scripts": {

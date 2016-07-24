@@ -1,16 +1,20 @@
-var cmd=require('node-cmd');
-var fs=require('fs');
-var SerialPort = require("serialport");
-var Message=require('js-message');
+const cmd=require('node-cmd');
+const fs=require('fs');
+const SerialPort = require("serialport");
+const Message=require('js-message');
+const WebSocketServer = require('ws').Server;
+const server = new WebSocketServer({ port: 81 });
 
 cmd.get(
     'echo BB-UART1 > /sys/devices/bone_capemgr.*/slots && echo BB-UART2 > /sys/devices/bone_capemgr.*/slots',
     getCalibration
 );
 
-var desiredWatts=0;
+cmd.run('/etc/init.d/hostapd restart&&/etc/init.d/isc-dhcp-server restart')
 
-var debug=false;
+let desiredWatts=0;
+
+const debug=false;
 
 Array.prototype.sum = function() {
     return this.reduce(function(a,b){return a+b;});
@@ -42,7 +46,7 @@ const BATTERY_VOLTAGE=116;
 const BATTERY_VOLTAGE_MIN=3;
 
 //const MAX_WATTAGE=12000;
-var MAX_WATTAGE=12000;
+let MAX_WATTAGE=12000;
 const GOOD_CHARGER=7000;
 const BAD_CHARGER=5100;
 
@@ -58,19 +62,19 @@ const BT_BAUD=19200;
 //const BT_PORT='/dev/ttyO4';
 const BT_PORT='/dev/ttyO1';
 
-var BATT_OFFSET=0;
-var IS_JPLUG=false;
+let BATT_OFFSET=0;
+let IS_JPLUG=false;
 
-var manuallySet=false;
-var forceSet=false;
+let manuallySet=false;
+let forceSet=false;
 
-var stopped=false;
+let stopped=false;
 
-var autoStart=false;
+const autoStart=false;
 
-var BUFFER=[0,0,0,0,0,0,0,0,0,0,0,0];
+const BUFFER=[0,0,0,0,0,0,0,0,0,0,0,0];
 
-var means={
+const means={
     amps:[0,0,0,0,0,0,0,0,0,0,0,0],
     volts:[0,0,0,0,0,0,0,0,0,0,0,0],
     mains:[100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100],
@@ -81,7 +85,7 @@ var means={
     blindMean:0
 };
 
-var chargerState={
+const chargerState={
     mainsV:0,
     estMainsV:120,
     estMaxWattage:1000,
@@ -99,20 +103,40 @@ var chargerState={
     }
 };
 
-var totalAHCharged=0;
-var startTime=new Date().getTime();
+let totalAHCharged=0;
+let startTime=new Date().getTime();
 
-var apiBT=null;
-var charger=null;
+let apiBT=null;
+let charger=null;
 
-var dataStorageDelay=60000;
-var dataStorageInterval=null;
+const dataStorageDelay=60000;
+let dataStorageInterval=null;
 
-var untilBroadcast=8;
+let untilBroadcast=8;
 
-var storageDir = __dirname + '/uploads/';
+const storageDir = __dirname + '/uploads/';
 
 cmd.run('find '+storageDir+' -mtime +5 -exec rm {} \\;');
+
+server.on(
+  'connection',
+  function connection(ws) {
+    ws.on(
+      'message',
+      handleRemoteCommand
+    );
+
+    broadcast();
+  }
+);
+
+server.broadcast = function broadcast(data) {
+  server.clients.forEach(
+    function each(client) {
+      client.send(data);
+    }
+  );
+};
 
 function getCalibration(){
     //init();
@@ -299,7 +323,9 @@ function startAPIBT() {
 
     try{
         broadcast();
-    }catch(err){}
+    }catch(err){
+
+    }
 }
 
 function start(){
@@ -334,6 +360,8 @@ function start(){
             if(data < 500){
                 data=GOOD_CHARGER;
             }
+
+            MAX_WATTAGE=data;
 
             var message=new Message;
             message.type='forceOut';
@@ -446,6 +474,12 @@ function broadcast(message) {
 
     try{
         sendData(apiBT,message.JSON);
+    }catch(err){
+
+    }
+
+    try{
+      server.broadcast(message.JSON);
     }catch(err){
 
     }
