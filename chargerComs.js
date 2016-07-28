@@ -47,6 +47,7 @@ const UNKNOWN_MESSAGE='M,I:';
 const MAX_CURRENT=95;
 const BATTERY_VOLTAGE=116;
 const BATTERY_VOLTAGE_MIN=3;
+const MIN_CURRENT=10;
 
 //const MAX_WATTAGE=12000;
 let MAX_WATTAGE=12000;
@@ -114,7 +115,7 @@ let charger=null;
 const dataStorageDelay=60000;
 let dataStorageInterval=null;
 
-let untilBroadcast=8;
+let untilBroadcast=MIN_CURRENT;
 
 let rampingDown=false;
 let rampingUp=true;
@@ -357,12 +358,15 @@ function start(){
             }
 
             MAX_WATTAGE=data;
+            DEFAULT_POWER=data;
 
             var message=new Message;
             message.type='setOut';
             message.data={
                 W:data
             };
+
+            console.log(data,MAX_WATTAGE,DEFAULT_POWER);
 
             setTimeout(
                 handleRemoteCommand.bind(null,message.JSON),
@@ -612,7 +616,11 @@ function parseCharging(data){
     chargerState.outAH  = Number(data[4]);
     chargerState.mainsV  = Number(data[5]);
 
-    if(chargerState.calibratedBattV>BATTERY_VOLTAGE+2){
+    if(
+      chargerState.calibratedBattV>BATTERY_VOLTAGE+2
+      || chargerState.outA>MAX_CURRENT
+      || chargerState.outA<MIN_CURRENT
+    ){
       storeData();
       turnOff();
       return;
@@ -749,7 +757,7 @@ function parseIdle(data){
             desiredWatts=MAX_WATTAGE;
         }
 
-        amps=8;
+        amps=MIN_CURRENT;
 
         var message=formatMessage(amps);
 
@@ -824,7 +832,7 @@ function handleRemoteCommand(data){
                 desiredWatts=MAX_WATTAGE;
             }
 
-            amps=8;
+            amps=MIN_CURRENT;
 
             console.log('requested ',desiredWatts,' watts starting at  ',amps,' amps');
 
