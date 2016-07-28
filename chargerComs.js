@@ -50,10 +50,9 @@ const BATTERY_VOLTAGE_MIN=3;
 
 //const MAX_WATTAGE=12000;
 let MAX_WATTAGE=12000;
-const GOOD_CHARGER=7000;
 const BAD_CHARGER=5100;
 
-const RAMPDOWN_WATTAGE=100;
+const RAMP_WATTAGE=50;
 
 const AUTO_START_TIMEOUT=500; //start after 0.5sec
 
@@ -116,6 +115,9 @@ const dataStorageDelay=60000;
 let dataStorageInterval=null;
 
 let untilBroadcast=8;
+
+let rampingDown=false;
+let rampingUp=true;
 
 const storageDir = __dirname + '/uploads/';
 
@@ -357,12 +359,12 @@ function start(){
             data=Number(data);
 
             if(isNaN(data)){
-                //bad value
+                data=1300;
                 return;
             }
 
             if(data < 500){
-                data=GOOD_CHARGER;
+                data=BAD_CHARGER;
             }
 
             MAX_WATTAGE=data;
@@ -598,8 +600,6 @@ function calcJPlugMax(){
     }
 }
 
-var rampingDown=false;
-
 function parseCharging(data){
     clearTimeout(autoStart);
     if(stopped){
@@ -651,7 +651,13 @@ function parseCharging(data){
         return;
     }
 
+    if(desiredWatts==MAX_WATTAGE){
+        rampingUp=false;
+        requiresUpdate=true;
+    }
+
     if(desiredWatts>MAX_WATTAGE){
+        rampingUp=false;
         desiredWatts=MAX_WATTAGE;
         requiresUpdate=true;
     }
@@ -660,7 +666,8 @@ function parseCharging(data){
         means.voltMean >= BATTERY_VOLTAGE
     ){
         rampingDown=true;
-        desiredWatts-=RAMPDOWN_WATTAGE;
+        rampingUp=false;
+        desiredWatts-=RAMP_WATTAGE;
         requiresUpdate=true;
         if(desiredWatts<1){
             turnOff();
@@ -668,8 +675,8 @@ function parseCharging(data){
         }
     }
 
-    if(!manuallySet&&!rampingDown){
-        desiredWatts=MAX_WATTAGE;
+    if(!rampingDown&&rampingUp){
+        desiredWatts+=RAMP_WATTAGE;
         requiresUpdate=true;
     }
 
@@ -677,6 +684,7 @@ function parseCharging(data){
         means.ampMean*means.voltMean > desiredWatts+200
         || means.ampMean*means.voltMean < desiredWatts-300
     ){
+        rampingUp=false;
         requiresUpdate=true;
     }
 
@@ -799,6 +807,7 @@ function handleRemoteCommand(data){
         case 'setOut' :
             //console.log(message.type,message.data);
             stopped=false;
+            rampingUp=true;
             desiredWatts=Math.abs(
                 Number(message.data.W)
             );
