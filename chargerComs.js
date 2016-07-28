@@ -10,14 +10,14 @@ const server = new WebSocketServer({ port: 81 });
 //     getCalibration
 // );
 
-getCalibration()
+getCalibration();
 
 //cmd.run('/etc/init.d/hostapd restart&&/etc/init.d/isc-dhcp-server restart')log;
 //cmd.run('/sbin/ifdown eth0');
 
 let desiredWatts=0;
 
-const debug=false;
+const debug=true;
 
 Array.prototype.sum = function() {
     return this.reduce(function(a,b){return a+b;});
@@ -236,24 +236,12 @@ function calibrateDefaultPower(power){
 
     desiredWatts=power;
 
+    MAX_WATTAGE=power;
     DEFAULT_POWER=power;
 
     fs.writeFile(
         '/root/calibration/power',
         power
-    );
-
-    var message=formatMessage(
-        desiredWatts/means.voltMean
-    );
-
-    if(!message){
-        return;
-    }
-
-    sendData(
-        charger,
-        message
     );
 }
 
@@ -361,8 +349,7 @@ function start(){
             data=Number(data);
 
             if(isNaN(data)){
-                data=1300;
-                return;
+                data=DEFAULT_POWER;
             }
 
             if(data < 500){
@@ -372,7 +359,7 @@ function start(){
             MAX_WATTAGE=data;
 
             var message=new Message;
-            message.type='forceOut';
+            message.type='setOut';
             message.data={
                 W:data
             };
@@ -665,11 +652,11 @@ function parseCharging(data){
     }
 
     if(!rampingDown&&rampingUp){
-        desiredWatts+=RAMP_WATTAGE;
+        desiredWatts=(means.ampMean*means.voltMean)+RAMP_WATTAGE;
         requiresUpdate=true;
     }
 
-    if(desiredWatts==MAX_WATTAGE){
+    if(means.ampMean*means.voltMean>=MAX_WATTAGE){
         rampingUp=false;
         requiresUpdate=true;
     }
@@ -816,9 +803,11 @@ function handleRemoteCommand(data){
     switch(message.type){
         case 'forceOut' :
             forceSet=true;
+            MAX_WATTAGE=12000;
         case 'setOut' :
             //console.log(message.type,message.data);
             stopped=false;
+            rampingDown=false;
             rampingUp=true;
             desiredWatts=Math.abs(
                 Number(message.data.W)
