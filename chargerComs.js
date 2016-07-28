@@ -66,8 +66,8 @@ const BT_PORT='/dev/ttyS1';
 
 let BATT_OFFSET=0;
 let IS_JPLUG=false;
+let DEFAULT_POWER=1300;
 
-let manuallySet=false;
 let forceSet=false;
 
 let stopped=false;
@@ -203,7 +203,9 @@ function getMainsV(){
 
     chargerState.estMainsV=means.mainsMean;
 
-    MAX_WATTAGE=Math.floor(means.blindMean*means.mainsMean);
+    //MAX_WATTAGE=Math.floor(means.blindMean*means.mainsMean);
+
+    MAX_WATTAGE=DEFAULT_POWER;
 
     if(IS_JPLUG){
         MAX_WATTAGE=Math.floor(chargerState.jplug.maxAmps*means.mainsMean);
@@ -234,6 +236,8 @@ function calibrateDefaultPower(power){
 
     desiredWatts=power;
 
+    DEFAULT_POWER=power;
+
     fs.writeFile(
         '/root/calibration/power',
         power
@@ -242,8 +246,6 @@ function calibrateDefaultPower(power){
     var message=formatMessage(
         desiredWatts/means.voltMean
     );
-
-    manuallySet=true;
 
     if(!message){
         return;
@@ -499,6 +501,8 @@ function turnOff(){
     stopped=true;
     rampingDown=false;
     rampingup=false;
+    forceSet=false;
+
     for(var i=0; i<means.amps.length; i++){
         means.amps[i]=chargerState.outA;
     }
@@ -660,6 +664,11 @@ function parseCharging(data){
         return;
     }
 
+    if(!rampingDown&&rampingUp){
+        desiredWatts+=RAMP_WATTAGE;
+        requiresUpdate=true;
+    }
+
     if(desiredWatts==MAX_WATTAGE){
         rampingUp=false;
         requiresUpdate=true;
@@ -684,16 +693,10 @@ function parseCharging(data){
         }
     }
 
-    if(!rampingDown&&rampingUp){
-        desiredWatts+=RAMP_WATTAGE;
-        requiresUpdate=true;
-    }
-
     if(
         means.ampMean*means.voltMean > desiredWatts+200
         || means.ampMean*means.voltMean < desiredWatts-300
     ){
-        rampingUp=false;
         requiresUpdate=true;
     }
 
@@ -749,6 +752,7 @@ function parseIdle(data){
         && chargerState.calibratedBattV>BATTERY_VOLTAGE_MIN
     ){
         var amps=0;
+        rampingUp=true;
         if(!desiredWatts){
             desiredWatts=MAX_WATTAGE;
         }
@@ -758,10 +762,7 @@ function parseIdle(data){
             desiredWatts=MAX_WATTAGE;
         }
 
-        amps=Math.round(
-            (desiredWatts/means.voltMean)
-            /2
-        );
+        amps=8;
 
         var message=formatMessage(amps);
 
@@ -830,17 +831,13 @@ function handleRemoteCommand(data){
 
             getMainsV();
 
-            manuallySet=true;
-
             if(desiredWatts>MAX_WATTAGE){
                 desiredWatts=MAX_WATTAGE;
             }
 
-            amps=Math.round(
-                desiredWatts/means.voltMean
-            );
+            amps=8;
 
-            console.log('requested ',desiredWatts,' watts as ',amps,' amps');
+            console.log('requested ',desiredWatts,' watts starting at  ',amps,' amps');
 
             var message=formatMessage(amps);
 
@@ -851,14 +848,6 @@ function handleRemoteCommand(data){
             sendData(
                 charger,
                 message
-            );
-
-            //ensure listened to if fresh start
-            setTimeout(
-                function(watts){
-                    desiredWatts=watts;
-                }.bind(null,desiredWatts),
-                300
             );
 
             break;
@@ -878,7 +867,6 @@ function handleRemoteCommand(data){
             //allow fall through
         case 'autoAdjust' :
             forceSet=false;
-            manuallySet=false;
             break;
         case 'connect' :
             broadcast();
