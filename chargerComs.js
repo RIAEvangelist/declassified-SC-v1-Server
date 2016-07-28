@@ -17,7 +17,7 @@ getCalibration()
 
 let desiredWatts=0;
 
-const debug=true;
+const debug=false;
 
 Array.prototype.sum = function() {
     return this.reduce(function(a,b){return a+b;});
