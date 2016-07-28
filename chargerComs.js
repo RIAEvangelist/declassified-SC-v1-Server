@@ -622,6 +622,7 @@ function parseCharging(data){
     chargerState.mainsV  = Number(data[5]);
 
     if(battV>BATTERY_VOLTAGE+2){
+      storeData();
       turnOff();
       return;
     }
