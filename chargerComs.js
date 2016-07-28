@@ -496,6 +496,9 @@ function turnOff(){
     chargerState.duty   = 0;
     chargerState.outA   = 0;
     desiredWatts=0;
+    stopped=true;
+    rampingDown=false;
+    rampingup=false;
     for(var i=0; i<means.amps.length; i++){
         means.amps[i]=chargerState.outA;
     }
@@ -791,6 +794,8 @@ function chargeStarted(data){
 function chargeComplete(){
     desiredWatts=0;
     stopped=true;
+    rampingDown=false;
+    rampingup=false;
     turnOff();
 }
 
