@@ -621,6 +621,11 @@ function parseCharging(data){
     chargerState.outAH  = Number(data[4]);
     chargerState.mainsV  = Number(data[5]);
 
+    if(battV>BATTERY_VOLTAGE+2){
+      turnOff();
+      return;
+    }
+
     chargerState.duration=(
         (new Date().getTime()-startTime)
         /1000/60/60
