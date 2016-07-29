@@ -619,7 +619,6 @@ function parseCharging(data){
     if(
       chargerState.calibratedBattV>BATTERY_VOLTAGE+2
       || chargerState.outA>MAX_CURRENT
-      || chargerState.outA<MIN_CURRENT
     ){
       storeData();
       turnOff();
@@ -660,7 +659,11 @@ function parseCharging(data){
     }
 
     if(!rampingDown&&rampingUp){
-        desiredWatts=(means.ampMean*means.voltMean)+RAMP_WATTAGE;
+        let nextWattage=(means.ampMean*means.voltMean)+RAMP_WATTAGE*10;
+        if(nextWattage<500){
+          nextWattage=500;
+        }
+        desiredWatts=nextWattage;
         requiresUpdate=true;
     }
 
