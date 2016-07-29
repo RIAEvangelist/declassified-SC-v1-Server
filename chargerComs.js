@@ -17,7 +17,7 @@ getCalibration();
 
 let desiredWatts=0;
 
-const debug=true;
+const debug=false;
 
 Array.prototype.sum = function() {
     return this.reduce(function(a,b){return a+b;});
@@ -357,8 +357,9 @@ function start(){
                 data=BAD_CHARGER;
             }
 
-            MAX_WATTAGE=data;
+
             DEFAULT_POWER=data;
+            MAX_WATTAGE=data;
 
             var message=new Message;
             message.type='setOut';
@@ -371,6 +372,11 @@ function start(){
             setTimeout(
                 handleRemoteCommand.bind(null,message.JSON),
                 200
+            );
+
+            setTimeout(
+                handleRemoteCommand.bind(null,message.JSON),
+                1000
             );
         }
     );
@@ -512,12 +518,17 @@ function formatMessage(current){
     current=Number(current)||10;
 
     if(isNaN(current) || current==Infinity){
-        current=10;
+        current=MIN_CURRENT;
     }
 
-    if(current>means.blindMean && !forceSet){
-        current=means.blindMean;
+    if(current>MAX_CURRENT){
+      current=MAX_CURRENT
     }
+
+    // if(current>means.blindMean && !forceSet){
+    //     current=means.blindMean;
+    // }
+
     current=Math.round(current);
 
     var voltage=BATTERY_VOLTAGE-BATT_OFFSET;
@@ -658,24 +669,42 @@ function parseCharging(data){
         return;
     }
 
-    if(!rampingDown&&rampingUp){
-        let nextWattage=(means.ampMean*means.voltMean)+RAMP_WATTAGE*10;
-        if(nextWattage<500){
-          nextWattage=500;
-        }
-        desiredWatts=nextWattage;
-        requiresUpdate=true;
-    }
-
     if(means.ampMean*means.voltMean>=MAX_WATTAGE){
         rampingUp=false;
         requiresUpdate=true;
+        desiredWatts=MAX_WATTAGE;
     }
 
     if(desiredWatts>MAX_WATTAGE){
-        rampingUp=false;
         desiredWatts=MAX_WATTAGE;
         requiresUpdate=true;
+    }
+
+    if(!rampingDown&&rampingUp){
+        let nextWattage=(means.ampMean*means.voltMean)+RAMP_WATTAGE*20;
+        if(nextWattage<BATTERY_VOLTAGE*MIN_CURRENT){
+          nextWattage=BATTERY_VOLTAGE*MIN_CURRENT;
+        }
+        if(nextWattage>MAX_WATTAGE){
+          nextWattage=MAX_WATTAGE;
+        }
+        if(nextWattage<desiredWatts){
+          var message=formatMessage(
+              nextWattage/means.voltMean
+          );
+
+          if(!message){
+              return;
+          }
+
+          sendData(
+              charger,
+              message
+          );
+        }else{
+          rampingUp=false;
+          requiresUpdate=true;
+        };
     }
 
     if(
@@ -748,6 +777,7 @@ function parseIdle(data){
     if(
         chargerState.calibratedBattV<BATTERY_VOLTAGE
         && chargerState.calibratedBattV>BATTERY_VOLTAGE_MIN
+        && !stopped
     ){
         var amps=0;
         rampingUp=true;
@@ -826,7 +856,7 @@ function handleRemoteCommand(data){
 
             if(isNaN(desiredWatts)){
                 //@TODO throw to client
-                desiredWatts=500;
+                desiredWatts=BATTERY_VOLTAGE*MIN_CURRENT;
             }
 
             getMainsV();
