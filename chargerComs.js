@@ -629,7 +629,6 @@ function parseCharging(data){
 
     if(
       chargerState.calibratedBattV>BATTERY_VOLTAGE+2
-      || chargerState.outA>MAX_CURRENT
     ){
       storeData();
       turnOff();
@@ -663,6 +662,11 @@ function parseCharging(data){
     }
 
     var requiresUpdate=false;
+
+    if(chargerState.outA>MAX_CURRENT + 20){
+        desiredWatts-=RAMP_WATTAGE*10;
+        requiresUpdate=true;
+    }
 
     if(desiredWatts<1){
         turnOff();
