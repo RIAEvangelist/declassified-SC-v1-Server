@@ -51,7 +51,7 @@ const MAX_CURRENT=95;
 const BATTERY_VOLTAGE=116;
 const BATTERY_VOLTAGE_MIN=79;
 const BATTERY_VOLTAGE_MAX=118;
-const MIN_CURRENT=10;
+const MIN_CURRENT=5;
 
 //const MAX_WATTAGE=12000;
 let MAX_WATTAGE=12000;
@@ -119,7 +119,7 @@ let charger=null;
 const dataStorageDelay=60000;
 let dataStorageInterval=null;
 
-let untilBroadcast=8;
+let untilBroadcast=4;
 
 let rampingDown=false;
 let rampingUp=true;
@@ -450,7 +450,7 @@ function gotData(data){
     if(untilBroadcast>0){
         return;
     }
-    untilBroadcast=8;
+    untilBroadcast=4;
     broadcast();
 }
 
@@ -525,7 +525,7 @@ function formatMessage(current){
     clearTimeout(autoStart);
     console.log('-',current);
     var min='000';
-    current=Number(current)||10;
+    current=Number(current)||MIN_CURRENT;
 
     if(isNaN(current) || current==Infinity){
         current=MIN_CURRENT;
