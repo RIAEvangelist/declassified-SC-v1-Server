@@ -621,7 +621,7 @@ function calcJPlugMax(){
 
 function parseCharging(data){
     clearTimeout(autoStart);
-    if(stopped){
+    if(stopped || preChargeTest){
         turnOff();
         return;
     }
@@ -878,6 +878,9 @@ function handleRemoteCommand(data){
             forceSet=true;
             MAX_WATTAGE=12000;
         case 'setOut' :
+            if(preChargeTest){
+                return;
+            }
             //console.log(message.type,message.data);
             stopped=false;
             rampingDown=false;
