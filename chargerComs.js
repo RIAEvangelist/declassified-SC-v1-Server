@@ -16,6 +16,9 @@ getCalibration();
 //cmd.run('/sbin/ifdown eth0');
 
 let desiredWatts=0;
+let preChargeTest=20;
+let preCharging=true;
+let startPreChargeVoltage=0;
 
 const debug=false;
 
@@ -47,6 +50,7 @@ const UNKNOWN_MESSAGE='M,I:';
 const MAX_CURRENT=95;
 const BATTERY_VOLTAGE=116;
 const BATTERY_VOLTAGE_MIN=79;
+const BATTERY_VOLTAGE_MAX=118;
 const MIN_CURRENT=10;
 
 //const MAX_WATTAGE=12000;
@@ -115,7 +119,7 @@ let charger=null;
 const dataStorageDelay=60000;
 let dataStorageInterval=null;
 
-let untilBroadcast=MIN_CURRENT;
+let untilBroadcast=8;
 
 let rampingDown=false;
 let rampingUp=true;
@@ -499,11 +503,17 @@ function turnOff(){
     rampingDown=false;
     rampingup=false;
     forceSet=false;
+    preChargeTest=20;
+    startPreChargeVoltage=0;
 
     for(var i=0; i<means.amps.length; i++){
         means.amps[i]=chargerState.outA;
     }
+    for(var i=0; i<means.volts.length; i++){
+        means.volts[i]=0;
+    }
     sendData(charger,STANDBY);
+    broadcast();
 
     setTimeout(
         broadcast,
@@ -628,7 +638,7 @@ function parseCharging(data){
     chargerState.mainsV  = Number(data[5]);
 
     if(
-      chargerState.calibratedBattV>BATTERY_VOLTAGE+2
+      chargerState.calibratedBattV>BATTERY_VOLTAGE_MAX
     ){
       storeData();
       turnOff();
@@ -768,9 +778,27 @@ function parseIdle(data){
     means.ampMean=(means.amps.mean()).toFixed(1);
     means.voltMean=(means.volts.mean()).toFixed(1);
 
-    if(means.voltMean<BATTERY_VOLTAGE_MIN){
-        means.voltMean=BATTERY_VOLTAGE-2;
+    if(
+        chargerState.calibratedBattV<BATTERY_VOLTAGE_MIN
+        || chargerState.calibratedBattV>BATTERY_VOLTAGE_MAX
+    ){
+        return;
     }
+
+    if(preChargeTest){
+        if(preChargeTest>19){
+            startPreChargeVoltage=chargerState.calibratedBattV;
+        }
+
+        preChargeTest--;
+    }
+
+    if(startPreChargeVoltage>chargerState.calibratedBattV){
+        stopped=true;
+        turnOff();
+        return;
+    }
+
 
     console.log(
         chargerState
