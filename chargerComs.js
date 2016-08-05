@@ -42,7 +42,6 @@ const CHARGING='M,S:D';
 const STARTED_CHARGE='M,M,';
 const CHARGE_COMPLETE='M,DONE,E';
 const TOTAL_CHARGED='AH,E';
-const JPLUG='J:';
 const MESSAGE_END=',E';
 
 const UNKNOWN_MESSAGE='M,I:';
@@ -70,7 +69,6 @@ const BT_BAUD=19200;
 const BT_PORT='/dev/ttyS1';
 
 let BATT_OFFSET=0;
-let IS_JPLUG=false;
 let DEFAULT_POWER=1300;
 
 let forceSet=false;
@@ -84,8 +82,6 @@ const BUFFER=[0,0,0,0,0,0,0,0,0,0,0,0];
 const means={
     amps:[0,0,0,0,0,0,0,0,0,0,0,0],
     volts:[0,0,0,0,0,0,0,0,0,0,0,0],
-    mains:[100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100],
-    blind:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
     ampMean:0,
     voltMean:0,
     mainsMean:0,
@@ -103,11 +99,7 @@ const chargerState={
     temp:0,
     outAH:0,
     means:means,
-    duration:0,
-    jplug:{
-        width:0,
-        maxAmps:0
-    }
+    duration:0
 };
 
 let totalAHCharged=0;
@@ -164,57 +156,14 @@ function getCalibration(){
 }
 
 function getMainsV(){
-    var mainsV=110;
-    //
-    // switch(true){
-    //     case (chargerState.mainsV>430):
-    //         means.blind.push(10);
-    //         break;
-    //     case (chargerState.mainsV>408):
-    //         means.blind.push(15);
-    //         break;
-    //     case (chargerState.mainsV>385):
-    //         mainsV=240;
-    //         means.blind.push(40);
-    //         break;
-    //     case (chargerState.mainsV>350):
-    //         mainsV=214;
-    //         means.blind.push(35);
-    //         break;
-    //     case (chargerState.mainsV>290):
-    //         mainsV=208;
-    //         means.blind.push(30);
-    //         break;
-    //     case (chargerState.mainsV>200):
-    //         mainsV=190;
-    //         means.blind.push(25);
-    //         break;
-    //     case (chargerState.mainsV>160):
-    //         mainsV=160;
-    //         means.blind.push(22);
-    //         break;
-    //     default :
-    //         means.blind.push(8);
-    // }
-
+    let mainsV=110;
     mainsV=208;
-    means.blind.push(32);
 
-    means.blind.shift();
-    means.mains.push(mainsV);
-    means.mains.shift();
-    means.blindMean=Math.floor(means.blind.mean());
-    means.mainsMean=Math.round(means.mains.mean());
-
-    chargerState.estMainsV=means.mainsMean;
+    chargerState.estMainsV=mainsV;
 
     //MAX_WATTAGE=Math.floor(means.blindMean*means.mainsMean);
 
     MAX_WATTAGE=DEFAULT_POWER;
-
-    if(IS_JPLUG){
-        MAX_WATTAGE=Math.floor(chargerState.jplug.maxAmps*means.mainsMean);
-    }
 
     if(forceSet){
         MAX_WATTAGE=12000;
@@ -331,6 +280,7 @@ function startAPIBT() {
 
 function start(){
     console.log('open ',CHARGER_PORT);
+    sendData(charger,STANDBY);
     charger.on(
         'data',
         gotData
@@ -340,6 +290,8 @@ function start(){
         storeData,
         dataStorageDelay
     );
+
+
 
     storeData();
 
@@ -380,7 +332,7 @@ function start(){
 
             setTimeout(
                 handleRemoteCommand.bind(null,message.JSON),
-                1000
+                3000
             );
         }
     );
@@ -407,7 +359,6 @@ function gotData(data){
     var isInvalid=data.match(/[^a-z0-9,:]/ig,'')
         ||(
             data.indexOf(MESSAGE_END)<0
-            &&data.indexOf(JPLUG)<0
         );
 
     if(isInvalid){
@@ -434,10 +385,6 @@ function gotData(data){
 
     if(data.indexOf(TOTAL_CHARGED)>0){
         parseTotalCharge(data);
-    }
-
-    if(data.indexOf(JPLUG)==0){
-        parseJPLUG(data);
     }
 
     if(data.indexOf(UNKNOWN_MESSAGE)==0){
@@ -580,45 +527,6 @@ function formatMessage(current){
     return message;
 }
 
-function parseJPLUG(data){
-    console.log('JPLUG DATA : ',data);
-    chargerState.jplug.raw=data;
-    data=data.slice(
-        data.indexOf(JPLUG)+JPLUG.length,
-        data.indexOf('A')
-    ).replace(/[^0-9,]/ig,'').split(',');
-    chargerState.jplug.raw+='|'+data;
-
-    chargerState.jplug.maxAmps=Number(data[1]);
-    chargerState.jplug.width=Number(data[0]);
-
-    if(isNaN(chargerState.jplug.maxAmps)||isNaN(chargerState.jplug.width)){
-        chargerState.jplug.maxAmps=10;
-        chargerState.jplug.width=0;
-    }
-
-    if(chargerState.jplug.maxAmps<10){
-        chargerState.jplug.maxAmps=10;
-    }
-
-    calcJPlugMax();
-
-    if(!IS_JPLUG){
-        IS_JPLUG=true;
-        desiredWatts=MAX_WATTAGE;
-    }
-}
-
-function calcJPlugMax(){
-    var mainsV=getMainsV();
-    MAX_WATTAGE=Math.floor(chargerState.jplug.maxAmps*mainsV);
-    chargerState.estMaxWattage  = MAX_WATTAGE;
-
-    if(MAX_WATTAGE<desiredWatts){
-        desiredWatts=MAX_WATTAGE;
-    }
-}
-
 function parseCharging(data){
     clearTimeout(autoStart);
     if(stopped || preChargeTest){
@@ -666,10 +574,6 @@ function parseCharging(data){
     means.voltMean=(means.volts.mean()).toFixed(1);
 
     getMainsV();
-
-    if(IS_JPLUG){
-        calcJPlugMax();
-    }
 
     var requiresUpdate=false;
 
@@ -787,13 +691,15 @@ function parseIdle(data){
 
     if(preChargeTest){
         if(preChargeTest>19){
+            chargerState.startPreChargeVoltage=chargerState.calibratedBattV;
             startPreChargeVoltage=chargerState.calibratedBattV;
         }
 
         preChargeTest--;
+        return;
     }
 
-    if(startPreChargeVoltage>chargerState.calibratedBattV){
+    if(startPreChargeVoltage>chargerState.calibratedBattV+4){
         stopped=true;
         turnOff();
         return;
@@ -814,11 +720,6 @@ function parseIdle(data){
         var amps=0;
         rampingUp=true;
         if(!desiredWatts){
-            desiredWatts=MAX_WATTAGE;
-        }
-
-        if(IS_JPLUG){
-            calcJPlugMax();
             desiredWatts=MAX_WATTAGE;
         }
 
