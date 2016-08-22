@@ -1,6 +1,6 @@
 {
   "name": "super-charger",
-  "version": "0.0.1",
+  "version": "1.2.0",
   "description": "super charger for electric vehicle controller",
   "main": "chargerComs.js",
   "dependencies": {
