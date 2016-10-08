@@ -61,12 +61,12 @@ const RAMP_WATTAGE=50;
 const AUTO_START_TIMEOUT=500; //start after 0.5sec
 
 const CHARGER_BAUD=19200;
-const CHARGER_PORT='/dev/ttyS2';//'/dev/ttyUSB0';
+const CHARGER_PORT='/dev/ttyO2';//'/dev/ttyUSB0';
 
 const BT_BAUD=19200;
 // LUKE or BTLE & BT combo
 //const BT_PORT='/dev/ttyO4';
-const BT_PORT='/dev/ttyS1';
+//const BT_PORT='/dev/ttyO1';
 
 let BATT_OFFSET=0;
 let DEFAULT_POWER=1300;
@@ -235,14 +235,14 @@ function calibrate(offset){
 }
 
 function init(){
-    console.log('connecting to BT',BT_PORT,BT_BAUD);
-    apiBT = new SerialPort(
-        BT_PORT,
-        {
-            baudrate: BT_BAUD,
-            parser: SerialPort.parsers.readline('\n')
-        }
-    );
+//    console.log('connecting to BT',BT_PORT,BT_BAUD);
+//    apiBT = new SerialPort(
+//        BT_PORT,
+//        {
+//            baudrate: BT_BAUD,
+//            parser: SerialPort.parsers.readline('\n')
+//        }
+//    );
     console.log('connecting to charger',CHARGER_PORT,CHARGER_BAUD);
     charger = new SerialPort(
         CHARGER_PORT,
@@ -252,10 +252,10 @@ function init(){
         }
     );
 
-    apiBT.on(
-        'open',
-        startAPIBT
-    );
+//    apiBT.on(
+//        'open',
+//        startAPIBT
+//    );
 
     charger.on(
         'open',
